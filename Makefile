@@ -28,5 +28,5 @@ inputs : gen.py
 
 clean:
 	rm -f $(OBJS) $(HOBJS) testAfl.o
-	rm -rf testRoot* fuzzRoot*
+	rm -rf testRoot* fuzzRoot* cmdRoot*
 

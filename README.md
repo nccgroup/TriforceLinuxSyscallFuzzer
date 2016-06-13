@@ -27,7 +27,11 @@ your kernel. Now run:
   ./runFuzz -M M0
 ```
 
-Note that this only creates a small set of example inputs.  To test
+Note that the `runFuzz` script expects a master or slave name, as
+it always runs in master/slave mode.  See the `runFuzz` script for
+more usage information.
+
+Also Note that this only creates a small set of example inputs.  To test
 a large number of important system calls, you will probably want to
 generate one example of each system call, or at least one example
 for every "shape" of system call.  These should be placed in `inputs/`.
