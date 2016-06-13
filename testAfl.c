@@ -1,9 +1,10 @@
 /*
- * Run an instrumented binary several times playing the part of afl-fuzzer.  
- * This is useful for debugging the forkserver and instrumented code.
+ * Run an instrumented binary with test inputs, playing the part of afl-fuzzer.
+ * This is useful for debugging the forkserver and instrumented code and
+ * for reproducing test cases.
  *
- * gcc -g -Wall fakeafl.c -o fakeafl
- * ./fakeafl ./instrprog args with @@ in them
+ * gcc -g -Wall testAfl.c -o testAfl
+ * ./testAfl ./instrprog args with @@ in them
  */
 
 #include <errno.h>
