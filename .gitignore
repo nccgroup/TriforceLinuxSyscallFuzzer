@@ -2,3 +2,14 @@
 driver
 heater
 testAfl
+inputs
+outputs
+kern
+testRoot
+testRoot.cpio.gz
+fuzzRoot
+fuzzRoot.cpio.gz
+cmdRoot
+cmdRoot.cpio.gz
+.fuzzdat
+logstore.txt

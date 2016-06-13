@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# usage: ./makeRoot name cmd args..
+#
+# Make an init ramdisk image for the root filesystem based off
+# of files in rootTemplate/.  Copy in a driver if its not already
+# in the template, and arrange for init to execute it.
+#
+# silently overwrites existing files.
+#
+
+if [ $# -lt 2 ] ; then
+    echo usage: $0 name driver
+    exit 1
+fi
+templ=rootTemplate
+name="$1"
+driver="$2"
+shift; shift
+args="$@"
+
+# copy main root template and patch it
+rm -rf "$name"
+cp -r "$templ" "$name"
+#cp heater "$name/bin/heater"
+baseDriver="`basename $driver`"
+if [ ! -f "$name/bin/$baseDriver" ] ; then
+    cp "$driver" "$name/bin/$baseDriver"
+fi
+sed "s#DRIVER#/bin/$baseDriver $args#" < "$name/init" > "$name/init.x" && mv "$name/init.x" "$name/init"
+chmod 755 "$name/init"
+
+# pack it up
+cd "$name"
+find . -print0 \
+    | cpio --null -ov --format=newc \
+    | gzip -9 > "../$name.cpio.gz"
+

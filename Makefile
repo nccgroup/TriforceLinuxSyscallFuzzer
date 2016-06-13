@@ -14,13 +14,15 @@ heater: $(HOBJS)
 testAfl : testAfl.o
 	$(CC) $(CFLAGS) -o $@ testAfl.o
 
-testRoot.cpio.gz : driver heater
-	./makeRoot testRoot driver -vv
-
+# fuzzRoot boots into the driver
 fuzzRoot.cpio.gz : driver heater
 	./makeRoot fuzzRoot driver
 
-inputs/ex1 : gen.py
+# testRoot boots into the driver with verbose flag set
+testRoot.cpio.gz : driver heater
+	./makeRoot testRoot driver -vv
+
+inputs : gen.py
 	test -d inputs || mkdir inputs
 	./gen.py
 

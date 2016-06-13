@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# usage: ./runFuzz [-C] [-M n | -S n] xtraargs..
+#                   -C continue existing fuzz run
+#                   -M n and -S n for master/slave.  n must be unique
+#                   xtraargs are passed to qemu
+#
+# choose kernel with K=name env variable, ie K=linux34 for linux34/bzImage
+#
+
+AFL=${TAFL:-../TriforceAFL}
+KERN=${K:-kern}
+
+
+# hokey arg parsing, sorry!
+if [ "x$1" = "x-C" ] ; then # continue
+    INP="-"
+    shift
+else
+    INP=inputs
+fi
+
+if [ "x$1" = "x-M" -o "x$1" = "x-S" ] ; then # master/slave args
+    FARGS="$1 $2"
+    shift; shift
+else
+    echo "specify -M n  or -S n  please"
+    exit 1
+fi
+
+# find our kernel and it's parameters
+getSym() { (grep " $1\$" $KERN/kallsyms|| echo 0 0)|cut -d' ' -f1; }
+
+PANIC=`getSym panic`
+LOGSTORE=`getSym log_store`
+
+# make a rootfs image
+make inputs/ex1 fuzzRoot.cpio.gz || exit 1
+
+# run fuzzer and qemu-system
+export AFL_SKIP_CRASHES=1
+$AFL/afl-fuzz $FARGS -t 500+ -i $INP -o outputs -QQ -- \
+    $AFL/afl-qemu-system-trace \
+    -kernel $KERN/bzImage -initrd ./fuzzRoot.cpio.gz \
+    -m 1G -nographic -append "console=ttyS0" \
+    -aflPanicAddr "$PANIC" \
+    -aflDmesgAddr "$LOGSTORE" \
+    -aflFile @@
+

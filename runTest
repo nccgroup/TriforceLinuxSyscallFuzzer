@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# Run a series of test cases through the driver one at a time
+# using the testAfl tool.
+#
+
+AFL=${TAFL:-../TriforceAFL}
+KERN=${K:-kern}
+
+getSym() { (grep " $1\$" $KERN/kallsyms|| echo 0 0)|cut -d' ' -f1; }
+
+CRASH=`getSym crash_kexec`
+LOGSTORE=`getSym log_store`
+
+make testAfl testRoot.cpio.gz || exit 1
+./testAfl ../afl/afl-qemu-system-trace \
+    -kernel $KERN/bzImage -initrd ./testRoot.cpio.gz \
+    -m 2G -nographic -append "console=ttyS0" \
+    -aflPanicAddr "$CRASH" \
+    -aflDmesgAddr "$LOGSTORE" \
+    -aflFile @@ -- "$@"
+

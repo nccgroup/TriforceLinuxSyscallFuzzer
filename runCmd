@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# usage: ./runCmd cmd args..
+#
+# choose kernel withK=name env variable.
+
+AFL=${TAFL:-../TriforceAFL}
+KERN=${K:-kern}
+./makeRoot cmdRoot "$@"
+$AFL/afl-qemu-system-trace \
+    -kernel $KERN/bzImage -initrd ./cmdRoot.cpio.gz \
+    -m 1G -nographic -append "console=ttyS0"
+
