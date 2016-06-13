@@ -1,0 +1,167 @@
+/*
+ * Run an instrumented binary several times playing the part of afl-fuzzer.  
+ * This is useful for debugging the forkserver and instrumented code.
+ *
+ * gcc -g -Wall fakeafl.c -o fakeafl
+ * ./fakeafl ./instrprog args with @@ in them
+ */
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+#include "../afl/config.h"
+
+#define FUZZFN ".fuzzdat"
+
+void xperror(int cond, char *msg) {
+    if(cond) {
+        perror(msg);
+        exit(1);
+    }
+}
+
+void writeFile(char *fn, char *buf) {
+    FILE *fp = fopen(fn, "w");
+    xperror(!fp, fn);
+    fwrite(buf, 1, strlen(buf), fp);
+    fclose(fp);
+}
+
+void copyFile(char *dst, char *src) {
+    char ch;
+    FILE *o = fopen(dst, "w");
+    FILE *i = fopen(src, "r");
+
+    xperror(!o, dst);
+    xperror(!i, src);
+    while(fread(&ch, 1, 1, i) == 1)
+        fwrite(&ch, 1, 1, o);
+    fclose(i);
+    fclose(o);
+}
+
+int srv[2];
+unsigned char *map;
+
+int workpid = -1;
+
+static void
+alarmHandler(int sig)
+{
+    if(workpid != -1) {
+        kill(workpid, SIGKILL);
+        printf("\ntimeout\n");
+    }
+}
+
+void
+runTest(char *fname, char *dat)
+{
+    int status, cnt, i, x;
+
+    if(dat)
+        writeFile(FUZZFN, dat);
+    else
+        copyFile(FUZZFN, fname);
+
+    memset(map, 0, MAP_SIZE);
+    x = write(srv[1], "GOGO", 4);
+    xperror(x != 4, "write go");
+
+    x = read(srv[0], &workpid, 4);
+    xperror(x != 4, "read pid");
+    printf("test running in pid %d\n", workpid);
+    alarm(2);
+    do {
+        x = read(srv[0], &status, 4);
+    } while(x == -1 && errno == EINTR);
+    xperror(x != 4, "read status");
+    alarm(0);
+    workpid = -1;
+    printf("test ended with status %x\n", status);
+    cnt = 0;
+    for(i = 0; i < MAP_SIZE; i++) {
+        if(map[i]) cnt++;
+    }
+    printf("%d edges\n\n", cnt);
+}
+
+int main(int argc, char **argv)
+{
+    char **files;
+    char idbuf[20], buf[100];
+    int p[2], id, x, pid, status, i;
+
+    signal(SIGALRM, alarmHandler);
+    xperror(argc < 2, "bad usage");
+
+    /* make forkserver pipes */
+    x = pipe(p);
+    xperror(x == -1, "pipe1");
+    dup2(p[0], FORKSRV_FD);
+    srv[1] = p[1];
+    x = pipe(p);
+    xperror(x == -1, "pipe2");
+    dup2(p[1], FORKSRV_FD+1);
+    srv[0] = p[0];
+    
+    id = shmget(IPC_PRIVATE, MAP_SIZE, IPC_CREAT | IPC_EXCL | 0600);
+    map = shmat(id, NULL, 0);
+    xperror(id == -1 || map == NULL, "shmget");
+    sprintf(idbuf, "%d", id);
+
+    //setenv("AFLGETWORK", "1", 1);
+    setenv("__AFL_SHM_ID", idbuf, 1);
+    //setenv("AFL_INST_RATIO", "50", 1);
+
+    argv += 1;
+    for(i = 1; argv[i]; i++) {
+        if(strcmp(argv[i], "--") == 0)
+            break;
+        if(strcmp(argv[i], "@@") == 0) 
+            argv[i] = FUZZFN;
+    }
+    if(argv[i]) {
+        argv[i] = 0;
+        i++;
+    }
+    files = argv + i;
+
+    /* run program to start forkserver */
+    pid = fork();
+    if(pid == 0) {
+        close(srv[0]);
+        close(srv[1]);
+        execvp(argv[0], argv);
+        xperror(1, argv[0]);
+    }
+
+    x = read(srv[0], buf, 4);
+    xperror(x != 4, "wait forkserver");
+
+    for(i = 0; files[i]; i++) {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        printf("Input from %s at time %ld.%06ld\n", files[i], (u_long)tv.tv_sec, (u_long)tv.tv_usec);
+        runTest(files[i], 0);
+    }
+    if(i == 0)
+        printf("No files to test!\n");
+
+    close(srv[0]);
+    close(srv[1]);
+    waitpid(pid, &status, 0);
+    printf("fork server ended with status %x\n", status);
+
+    shmctl(id, IPC_RMID, NULL);
+    return 0;
+}
+
+
