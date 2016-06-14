@@ -41,7 +41,7 @@ make inputs/ex1 fuzzRoot.cpio.gz || exit 1
 export AFL_SKIP_CRASHES=1
 $AFL/afl-fuzz $FARGS -t 500+ -i $INP -o outputs -QQ -- \
     $AFL/afl-qemu-system-trace \
-    -L $AFL/qemu_mode/qemu \
+    -L $AFL/qemu_mode/qemu/pc-bios \
     -kernel $KERN/bzImage -initrd ./fuzzRoot.cpio.gz \
     -m 1G -nographic -append "console=ttyS0" \
     -aflPanicAddr "$PANIC" \
