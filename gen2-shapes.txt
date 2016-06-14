@@ -1,0 +1,117 @@
+
+buffer
+buffer, int
+buffer, int, buffer
+buffer, int, int, ptr
+buffer, len, int
+fd
+fd, buffer
+fd, buffer, buffer, int
+fd, buffer, buffer, int, int
+fd, buffer, int
+fd, buffer, int, int, ptr
+fd, buffer, len
+fd, buffer, len, int
+fd, fd
+fd, fd, int
+fd, fd, int, int
+fd, fd, ptr, int
+fd, filename, buffer, len
+fd, filename, fd, filename
+fd, filename, fd, filename, int
+fd, filename, int
+fd, filename, int, int
+fd, filename, int, int, int
+fd, filename, ptr
+fd, filename, ptr, int
+fd, filename, ptr, ptr, int
+fd, inotifydesc
+fd, int
+fd, int, buffer
+fd, int, fd, int, int, int
+fd, int, fd, ptr
+fd, int, int
+fd, int, int, fd, filename
+fd, int, int, int
+fd, int, ptr, ptr
+fd, ptr
+fd, ptr, int
+fd, ptr, int, int
+fd, ptr, int, int, ptr, int
+fd, ptr, ptr
+fd, string
+fd, string, buffer, int
+fd, string, int
+fd, string, string, int, int
+filename
+filename, buffer
+filename, buffer, buffer, int
+filename, buffer, buffer, int, int
+filename, buffer, int
+filename, buffer, len
+filename, fd, filename
+filename, filename
+filename, filename, filesystem, int, buffer
+filename, int
+filename, int, int
+filename, ptr
+filename, string
+filename, string, buffer, int
+filename, string, string, int, int
+int
+int, buffer
+int, buffer, len
+int, int
+int, int, buffer
+int, int, int
+int, int, int, fd, fd
+int, int, int, int
+int, int, int, int, fd, int
+int, int, int, int, int
+int, int, int, ptr, int, int
+int, int, ptr
+int, int, ptr, int
+int, int, ptr, int, ptr
+int, int, ptr, ptr
+int, int, ptr, ptr, opt, ptr, int
+int, int, signalno
+int, int, signalno, ptr
+int, ptr
+int, ptr, int
+int, ptr, int, int
+int, ptr, int, ptr
+int, ptr, int, ptr, int, const
+int, ptr, ptr
+int, ptr, ptr, int
+int, ptr, ptr, ptr, ptr
+int, ptr, ptr, ptr, ptr, ptr
+int, signalno
+int, signalno, ptr
+io_ctx
+io_ctx, int, int, ptr, ptr
+io_ctx, int, ptr
+io_ctx, ptr, ptr
+ipc, buffer, int
+ipc, buffer, int, int, int
+ipc, int, int
+ipc, int, int, ptr
+ipc, int, ptr
+ipc, ptr, int
+ipc, ptr, int, ptr
+ptr
+ptr, int
+ptr, int, int
+ptr, int, int, ptr, ptr, int
+ptr, int, ptr, ptr, int
+ptr, ptr
+ptr, ptr, int, int, int
+ptr, ptr, ptr
+ptr, ptr, ptr, int
+signalno, ptr, ptr, int, ptr
+string
+string, int
+string, int, int, ptr
+string, int, string
+timerid
+timerid, int, ptr, ptr
+timerid, ptr

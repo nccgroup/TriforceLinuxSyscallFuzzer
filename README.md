@@ -35,6 +35,7 @@ Also Note that this only creates a small set of example inputs.  To test
 a large number of important system calls, you will probably want to
 generate one example of each system call, or at least one example
 for every "shape" of system call.  These should be placed in `inputs/`.
+See `gen2.py` for an example.
 
 ## Reproducing
 To reproduce test cases (such as crashes) run:
