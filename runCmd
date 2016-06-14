@@ -6,7 +6,12 @@
 
 AFL=${TAFL:-../TriforceAFL}
 KERN=${K:-kern}
-./makeRoot cmdRoot "$@"
+
+if [ $# = 0 ] ; then
+    ./makeRoot cmdRoot sh -i
+else
+    ./makeRoot cmdRoot "$@"
+fi
 $AFL/afl-qemu-system-trace \
     -kernel $KERN/bzImage -initrd ./cmdRoot.cpio.gz \
     -m 1G -nographic -append "console=ttyS0"
