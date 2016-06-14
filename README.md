@@ -58,9 +58,11 @@ run tests.  To do so, edit the rootTemplate files as you see fit (for
 example, to add more test tools to the root filesystem), then run:
 
 ```
-  ./runCmd sh -i
+  ./runCmd
 ```
 
+Other commands other than the shell can be invoked by specifying
+them as command line arguments to `runCmd`.
 Note: when done with the shell, use ```^A-c``` to get the QEMU prompt
 and type ```quit```.
 
