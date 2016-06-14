@@ -8,7 +8,8 @@ This is a collection of files used to perform system call
 fuzzing of Linux x86_64 kernels using AFL and QEMU.  To use 
 it you will need TriforceAFL from https://github.com/nccgroup/TriforceAFL
 and a kernel image to fuzz.  Scripts assume that TriforceAFL is
-found in `$TAFL` or `../TriforceAFL/`.
+found in `$TAFL` or `../TriforceAFL/` (N.B. building `testAfl` requires
+that `../TriforceAFL/config.h` exist).
 
 ## Building
 To build:
