@@ -17,7 +17,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include "../afl/config.h"
+#include "../TriforceAFL/config.h"
 
 #define FUZZFN ".fuzzdat"
 
