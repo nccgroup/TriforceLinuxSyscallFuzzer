@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+"""
+Extract vmlinux from bzImage.
+"""
+import zlib
+
+dat = file('bzImage', 'rb').read()
+pos = dat.find('\x1f\x8b\x08\x00')
+dat2 = zlib.decompress(dat[pos:], zlib.MAX_WBITS|16)
+print len(dat2)
+file('vmlinux', 'wb').write(dat2)

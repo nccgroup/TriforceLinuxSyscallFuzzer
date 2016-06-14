@@ -68,3 +68,30 @@ them as command line arguments to `runCmd`.
 Note: when done with the shell, use ```^A-c``` to get the QEMU prompt
 and type ```quit```.
 
+## Debugging
+Debugging is easiest with a kernel built with debugging symbols enabled.
+Use `runTest` to start the kernel and run a test through the
+driver, or use `runCmd` to manually run a test case from the shell.
+Edit your run script to include the `-s` option when starting `afl-qemu-system-trace`.
+This will enable `gdb` support on TCP port 1234.  Use `getvmlinux` to extract
+the `vmlinux` kernel image from your `bzImage` kernel and run gdb after
+the system has booted:
+```
+   cp kern/bzImage .
+   ./getvmlinux
+   gdb ./vmlinux
+   target remote :1234
+   break somefunction
+   continue
+```
+You can attach the debugger after `runTest` has caused a crash
+or before you manually trigger then bug in `runCmd`.
+
+Note that Linux sources are compiled with optimization turned
+on by default. This can make debugging confusing and difficult.
+You can disable optimization on a file-by-file
+basis by editing the Linux make file for the subdirectory a file is
+in and adding `CFLAGS_name.o = -O1` to the `Makefile`.  For
+example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O1`
+will disable optimization when building `kernel/sys_ni.o`.
+
