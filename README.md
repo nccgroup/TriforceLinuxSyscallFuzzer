@@ -91,8 +91,8 @@ Note that Linux sources are compiled with optimization turned
 on by default. This can make debugging confusing and difficult.
 You can disable optimization on a file-by-file
 basis by editing the Linux make file for the subdirectory a file is
-in and adding `CFLAGS_name.o = -O1` to the `Makefile`.  For
-example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O1`
+in and adding `CFLAGS_name.o = -O0` to the `Makefile`.  For
+example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O0`
 will disable optimization when building `kernel/sys_ni.o`.
 
 
