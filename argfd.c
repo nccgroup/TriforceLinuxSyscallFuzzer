@@ -6,6 +6,7 @@
 #include <sys/epoll.h>
 #include <sys/inotify.h>
 #include <sys/timerfd.h>
+#include <netinet/in.h>
 //#include <linux/memfd.h>
 //#include <sys/syscall.h>
 
@@ -89,13 +90,13 @@ int getStdFile(int typ)
     S(40, AF_INET, SOCK_STREAM, 0);
     S(41, AF_INET, SOCK_DGRAM, 0);
     S(42, AF_INET, SOCK_SEQPACKET, 0);
-    S(43, AF_INET, SOCK_RAW, 0);
+    S(43, AF_INET, SOCK_RAW, IPPROTO_RAW);
     S(44, AF_INET, SOCK_RDM, 0);
     S(45, AF_INET, SOCK_PACKET, 0);
     S(46, AF_INET6, SOCK_STREAM, 0);
     S(47, AF_INET6, SOCK_DGRAM, 0);
     S(48, AF_INET6, SOCK_SEQPACKET, 0);
-    S(49, AF_INET6, SOCK_RAW, 0);
+    S(49, AF_INET6, SOCK_RAW, IPPROTO_RAW);
     S(50, AF_INET6, SOCK_RDM, 0);
     S(51, AF_INET6, SOCK_PACKET, 0);
     S(52, AF_IPX, SOCK_STREAM, 0);
