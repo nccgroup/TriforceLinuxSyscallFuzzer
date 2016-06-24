@@ -91,7 +91,24 @@ Note that Linux sources are compiled with optimization turned
 on by default. This can make debugging confusing and difficult.
 You can disable optimization on a file-by-file
 basis by editing the Linux make file for the subdirectory a file is
-in and adding `CFLAGS_name.o = -O1` to the `Makefile`.  For
-example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O1`
+in and adding `CFLAGS_name.o = -O0` to the `Makefile`.  For
+example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O0`
 will disable optimization when building `kernel/sys_ni.o`.
+
+# Utility
+
+The `getSyms` shell script uses `runCmd` to execute `cat /proc/kallsyms`
+and extract it to a local file named `kallsyms`.  This is typically
+used to prep your kernel for fuzzing:
+* run `K=yourKernDir ./getSyms` to get `kallsyms`
+* run `mv kallsyms yourKernDir` to install it
+
+# Bugs
+
+Note: When fuzzing a Linux 2.* kernel you will need to enable
+the CPU timer.  When the timer is not enabled panic and logging
+detection do not seem to operate properly and panics result
+in hangs.  To enable the timer, call `startForkserver(1)` in
+`driver.c` instead of `startForkserver(0)`.  This issue
+does not seem to occur in Linux3.* and Linux4.* kernels.
 

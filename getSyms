@@ -1,0 +1,6 @@
+#!/bin/sh
+
+script -c "./runCmd getSyms" kallsyms.x
+cat kallsyms.x | tr -d '\015' | sed -n '1,/^START/d; /^END/,$d; /^[0-9a-f]/p' > kallsyms
+rm kallsyms.x
+

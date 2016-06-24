@@ -14,6 +14,7 @@
 static void usage(char *prog) {
     printf("usage:  %s [-tvx]\n", prog);
     printf("\t\t-t\ttest mode, dont use AFL hypercalls\n");
+    printf("\t\t-T\tenable qemu's timer in forked children\n");
     printf("\t\t-v\tverbose mode\n");
     printf("\t\t-x\tdon't perform system call\n");
     exit(1);
@@ -46,12 +47,16 @@ main(int argc, char **argv)
     u_long sz;
     int x, opt, nrecs;
     int noSyscall = 0;
+    int enableTimer = 0;
 
     prog = argv[0];
-    while((opt = getopt(argc, argv, "tvx")) != -1) {
+    while((opt = getopt(argc, argv, "tTvx")) != -1) {
         switch(opt) {
         case 't':
             aflTestMode = 1;
+            break;
+        case 'T':
+            enableTimer = 1;
             break;
         case 'v':
             verbose++;
@@ -72,7 +77,7 @@ main(int argc, char **argv)
 
     if(!aflTestMode)
         watcher();
-    startForkserver(0);
+    startForkserver(enableTimer);
     buf = getWork(&sz);
     //printf("got work: %d - %.*s\n", sz, (int)sz, buf);
 
