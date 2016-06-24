@@ -95,6 +95,13 @@ in and adding `CFLAGS_name.o = -O0` to the `Makefile`.  For
 example editing `kernel/Makefile` and adding `CFLAGS_sys_ni.o = -O0`
 will disable optimization when building `kernel/sys_ni.o`.
 
+# Utility
+
+The `getSyms` shell script uses `runCmd` to execute `cat /proc/kallsyms`
+and extract it to a local file named `kallsyms`.  This is typically
+used to prep your kernel for fuzzing:
+* run `K=yourKernDir ./getSyms` to get `kallsyms`
+* run `mv kallsyms yourKernDir` to install it
 
 # Bugs
 
