@@ -35,7 +35,7 @@ PANIC=`getSym panic`
 LOGSTORE=`getSym log_store`
 
 # make a rootfs image
-make inputs/ex1 fuzzRoot.cpio.gz || exit 1
+make inputs fuzzRoot.cpio.gz || exit 1
 
 # run fuzzer and qemu-system
 export AFL_SKIP_CRASHES=1
