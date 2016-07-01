@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/eventfd.h>
+#include <sys/stat.h>
 
 #include "drv.h"
 #include "sysc.h"
@@ -116,7 +117,7 @@ static int parseArgFile(struct slice *b, struct parseState *st, u_int64_t *x)
     size_t pos = st->bufpos++;
     struct slice *bslice = st->slices + pos;
 
-    sprintf(namebuf, "/tmp/file%d", num++);
+    snprintf(namebuf, sizeof namebuf - 1, "/tmp/file%d", num++);
     fd = open(namebuf, O_RDWR | O_CREAT | O_TRUNC, 0777);
     if(fd == -1
     || write(fd, sliceBuf(bslice), sliceSize(bslice)) == -1
@@ -124,6 +125,7 @@ static int parseArgFile(struct slice *b, struct parseState *st, u_int64_t *x)
         perror(namebuf);
         exit(1);
     }
+    fchmod(fd, 0777); // just in case it previously existed with other mode
     *x = fd;
     if(verbose) printf("argFile %llx - %ld bytes from %s\n", (unsigned long long)*x, (u_long)sliceSize(bslice), namebuf);
     dumpContents(sliceBuf(bslice), sliceSize(bslice));
@@ -181,7 +183,7 @@ static int parseArgFilename(struct slice *b, struct parseState *st, u_int64_t *x
     size_t pos = st->bufpos++;
     struct slice *bslice = st->slices + pos;
 
-    sprintf(namebuf, "/tmp/file%d", num++);
+    snprintf(namebuf, sizeof namebuf - 1, "/tmp/file%d", num++);
     fd = open(namebuf, O_WRONLY | O_CREAT | O_TRUNC, 0777);
     if(fd == -1
     || write(fd, sliceBuf(bslice), sliceSize(bslice)) == -1
