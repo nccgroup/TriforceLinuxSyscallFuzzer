@@ -17,6 +17,8 @@ extern int verbose;
 #define NSLICES 7
 #define STKSZ 256
 struct parseState {
+    struct sysRec *calls;
+    int ncalls;
     struct slice slices[NSLICES];
     u_int64_t sizeStk[STKSZ];
     size_t nslices, bufpos, stkpos;
@@ -197,6 +199,68 @@ static int parseArgFilename(struct slice *b, struct parseState *st, u_int64_t *x
     return 0;
 }
 
+static int
+mkChild(u_int64_t *retPid)
+{
+    pid_t pid;
+    int i;
+
+    pid = fork();
+    switch(pid) {
+    case -1: return -1;
+    case 0:
+        *retPid = pid;
+        return 0;
+    default:
+        break;
+    }
+
+    /* child process */
+    for(i = 0; i < 10; i++)
+        sleep(1);
+    exit(0);
+}
+
+/* use a pid related to our process as an arg */
+static int parseArgPid(struct slice *b, struct parseState *st, u_int64_t *x)
+{
+    unsigned char typ;
+
+    if(getU8(b, &typ) == -1)
+        return -1;
+    switch(typ) {
+    case 0: // my pid
+        *x = getpid(); 
+        break;
+    case 1: // parent pid
+        *x = getppid(); 
+        break;
+    case 3: // child pid
+        if(mkChild(x) == -1)
+            return -1;
+        break;
+    default:
+        return -1;
+    }
+    if(verbose) printf("argPid %llx - %d\n", (unsigned long long)*x, typ);
+    return 0;
+}
+
+/* Reference a previously defined argument as a new arg */
+static int parseArgRef(struct slice *b, struct parseState *st, u_int64_t *x)
+{
+    unsigned char ncall, narg;
+
+    if(getU8(b, &ncall) == -1
+    || getU8(b, &narg) == -1
+    || ncall >= st->ncalls
+    || narg >= 6)
+        return -1;
+    *x = st->calls[ncall].args[narg];
+    if(verbose) printf("argRef %llx - %d %d\n", (unsigned long long)*x, ncall, narg);
+    return 0;
+}
+
 static int parseArg(struct slice *b, struct parseState *st, u_int64_t *x)
 {
     unsigned char typ;
@@ -212,11 +276,13 @@ static int parseArg(struct slice *b, struct parseState *st, u_int64_t *x)
     case 5: return parseArgStdFile(b, st, x);
     case 7: return parseArgVec64(b, st, x);
     case 8: return parseArgFilename(b, st, x);
+    case 9: return parseArgPid(b, st, x);
+    case 10: return parseArgRef(b, st, x);
     default: return -1;
     }
 }
 
-int parseSysRec(struct slice *b, struct sysRec *x)
+int parseSysRec(struct sysRec *calls, int ncalls, struct slice *b, struct sysRec *x)
 {
     struct parseState st;
     int i;
@@ -229,6 +295,8 @@ int parseSysRec(struct slice *b, struct sysRec *x)
     b = &st.slices[0];
     st.bufpos = 1;
     st.stkpos = 0;
+    st.calls = calls;
+    st.ncalls = ncalls;
     if(getU16(b, &x->nr) == -1)
         return -1;
     if(verbose) printf("call %d\n", x->nr);
@@ -251,7 +319,7 @@ int parseSysRecArr(struct slice *b, int maxRecs, struct sysRec *x, int *nRecs)
         return -1;
 
     for(i = 0; i < nslices; i++) {
-        if(parseSysRec(slices + i, x + i) == -1)
+        if(parseSysRec(x, i, slices + i, x + i) == -1)
             return -1;
     }
     *nRecs = nslices;

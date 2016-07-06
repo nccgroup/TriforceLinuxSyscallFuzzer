@@ -44,6 +44,9 @@ class String(object) :
         xtra.add(self.v)
     def mkArg(self, buf, xtra) :
         self.mkArgTyp(2, buf, xtra)
+def StringZ(v) :
+    return String(v + '\0')
+
 class Len(object) :
     def mkArg(self, buf, xtra) :
         buf.pack('!B', 3)
@@ -66,10 +69,24 @@ class Vec64(object) :
 class Filename(String) :
     def mkArg(self, buf, xtra) :
         self.mkArgTyp(8, buf, xtra)
+class Pid(object) :
+    def __init__(self, v) :
+        self.v = v
+    def mkArg(self, buf, xtra) :
+        buf.pack('!BB', 9, self.v)
+MyPid = Pid(0)
+PPid = Pid(1)
+ChildPid = Pid(2)
+
+class Ref(object) :
+    def __init__(self, nc, na) :
+        self.nc, self.na = nc,na
+    def mkArg(self, buf, xtra) :
+        buf.pack('!BBB', 10, self.nc, self.na)
 
 def mkArg(buf, xtra, x) :
     if isinstance(x, str) :
-        x = String(x)
+        x = StringZ(x)
     elif isinstance(x, int) or isinstance(x, long) :
         x = Num(x)
     x.mkArg(buf, xtra)
@@ -96,6 +113,14 @@ def mkSyscalls(*calls) :
 def writeFn(fn, buf) :
     with file(fn, 'w') as f :
         f.write(buf)
+
+def test(fn) :
+    # cleanup temp files made by driver
+    subprocess.call("rm -rf /tmp/file?", shell=True)
+    # hokey, but guarantees that fd=1 is not readable
+    st = subprocess.call("./driver -tv < %s > /tmp/.xxx" % fn, shell=True)
+    st = subprocess.call("egrep -q 'returned [^-]' /tmp/.xxx", shell=True)
+    return st == 0
     
 if __name__ == '__main__' :
     read = 0

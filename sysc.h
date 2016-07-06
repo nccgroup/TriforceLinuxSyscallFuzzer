@@ -7,7 +7,7 @@ struct sysRec {
     u_int64_t args[6];
 };
 
-int parseSysRec(struct slice *b, struct sysRec *x);
+int parseSysRec(struct sysRec *calls, int ncalls, struct slice *b, struct sysRec *x);
 int parseSysRecArr(struct slice *b, int maxRecs, struct sysRec *x, int *nRecs);
 void showSysRec(struct sysRec *x);
 void showSysRecArr(struct sysRec *x, int n);
