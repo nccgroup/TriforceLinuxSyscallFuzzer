@@ -94,10 +94,19 @@ runTest(char *fname, char *dat)
     printf("%d edges\n\n", cnt);
 }
 
+static double timeDelta(struct timeval *start, struct timeval *end)
+{
+    struct timeval d;
+
+    timersub(end, start, &d);
+    return d.tv_sec + d.tv_usec / 1000000.0;
+}
+
 int main(int argc, char **argv)
 {
     char **files;
     char idbuf[20], buf[100];
+    struct timeval startBoot, startTest, now;
     int p[2], id, x, pid, status, i;
 
     signal(SIGALRM, alarmHandler);
@@ -136,6 +145,7 @@ int main(int argc, char **argv)
     files = argv + i;
 
     /* run program to start forkserver */
+    gettimeofday(&startBoot, 0);
     pid = fork();
     if(pid == 0) {
         close(srv[0]);
@@ -147,10 +157,10 @@ int main(int argc, char **argv)
     x = read(srv[0], buf, 4);
     xperror(x != 4, "wait forkserver");
 
+    gettimeofday(&startTest, 0);
     for(i = 0; files[i]; i++) {
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        printf("Input from %s at time %ld.%06ld\n", files[i], (u_long)tv.tv_sec, (u_long)tv.tv_usec);
+        gettimeofday(&now, NULL);
+        printf("Input from %s at time %ld.%06ld\n", files[i], (u_long)now.tv_sec, (u_long)now.tv_usec);
         runTest(files[i], 0);
     }
     if(i == 0)
@@ -160,6 +170,11 @@ int main(int argc, char **argv)
     close(srv[1]);
     waitpid(pid, &status, 0);
     printf("fork server ended with status %x\n", status);
+
+    gettimeofday(&now, 0);
+    printf("boot time:  %.2f\n", timeDelta(&startBoot, &startTest));
+    printf("test time:  %.2f\n", timeDelta(&startTest, &now));
+    printf("total time: %.2f\n", timeDelta(&startBoot, &now));
 
     shmctl(id, IPC_RMID, NULL);
     return 0;
