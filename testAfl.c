@@ -175,6 +175,8 @@ int main(int argc, char **argv)
     printf("boot time:  %.2f\n", timeDelta(&startBoot, &startTest));
     printf("test time:  %.2f\n", timeDelta(&startTest, &now));
     printf("total time: %.2f\n", timeDelta(&startBoot, &now));
+    if(i != 0)
+        printf("execs/sec: %.2f\n", i / timeDelta(&startTest, &now));
 
     shmctl(id, IPC_RMID, NULL);
     return 0;
