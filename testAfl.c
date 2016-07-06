@@ -21,6 +21,8 @@
 
 #define FUZZFN ".fuzzdat"
 
+static int forceQuit = 0;
+
 void xperror(int cond, char *msg) {
     if(cond) {
         perror(msg);
@@ -60,6 +62,13 @@ alarmHandler(int sig)
         kill(workpid, SIGKILL);
         printf("\ntimeout\n");
     }
+}
+
+static void
+intHandler(int sig)
+{
+    forceQuit = 1;
+    signal(SIGINT, SIG_DFL);
 }
 
 void
@@ -110,6 +119,7 @@ int main(int argc, char **argv)
     int p[2], id, x, pid, status, i;
 
     signal(SIGALRM, alarmHandler);
+    signal(SIGINT, intHandler);
     xperror(argc < 2, "bad usage");
 
     /* make forkserver pipes */
@@ -158,7 +168,7 @@ int main(int argc, char **argv)
     xperror(x != 4, "wait forkserver");
 
     gettimeofday(&startTest, 0);
-    for(i = 0; files[i]; i++) {
+    for(i = 0; files[i] && !forceQuit; i++) {
         gettimeofday(&now, NULL);
         printf("Input from %s at time %ld.%06ld\n", files[i], (u_long)now.tv_sec, (u_long)now.tv_usec);
         runTest(files[i], 0);
@@ -175,8 +185,10 @@ int main(int argc, char **argv)
     printf("boot time:  %.2f\n", timeDelta(&startBoot, &startTest));
     printf("test time:  %.2f\n", timeDelta(&startTest, &now));
     printf("total time: %.2f\n", timeDelta(&startBoot, &now));
-    if(i != 0)
+    if(i != 0) {
+        printf("tests:     %d\n", i);
         printf("execs/sec: %.2f\n", i / timeDelta(&startTest, &now));
+    }
 
     shmctl(id, IPC_RMID, NULL);
     return 0;

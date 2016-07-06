@@ -12,6 +12,7 @@ getSym() { (grep " $1\$" $KERN/kallsyms|| echo 0 0)|cut -d' ' -f1; }
 CRASH=`getSym crash_kexec`
 LOGSTORE=`getSym log_store`
 
+echo "kernel $KERN"
 make testAfl testRoot.cpio.gz || exit 1
 ./testAfl $AFL/afl-qemu-system-trace \
     -L $AFL/qemu_mode/qemu/pc-bios \
