@@ -48,7 +48,7 @@ aflCall(u_long a0, u_long a1, u_long a2)
     asm(".byte 0x0f, 0x24" 
             : "=a"(ret) 
             : "D"(a0), "S"(a1), "d"(a2)
-            :);
+            );
     return ret;
 }
 
