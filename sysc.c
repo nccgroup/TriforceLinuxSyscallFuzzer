@@ -149,7 +149,6 @@ static int parseArgStdFile(struct slice *b, struct parseState *st, u_int64_t *x)
     return 0;
 }
 
-/* we might want an ArgVec32 for -m32 testing */
 static int parseArgVec64(struct slice *b, struct parseState *st, u_int64_t *x)
 {
     u_int64_t *vec;
@@ -205,18 +204,19 @@ mkChild(u_int64_t *retPid)
     pid_t pid;
     int i;
 
+    fflush(stdout);
     pid = fork();
     switch(pid) {
     case -1: return -1;
     case 0:
+        break;
+    default:
         *retPid = pid;
         return 0;
-    default:
-        break;
     }
 
     /* child process */
-    for(i = 0; i < 10; i++)
+    for(i = 0; i < 3; i++)
         sleep(1);
     exit(0);
 }
@@ -235,7 +235,7 @@ static int parseArgPid(struct slice *b, struct parseState *st, u_int64_t *x)
     case 1: // parent pid
         *x = getppid(); 
         break;
-    case 3: // child pid
+    case 2: // child pid
         if(mkChild(x) == -1)
             return -1;
         break;
@@ -261,6 +261,31 @@ static int parseArgRef(struct slice *b, struct parseState *st, u_int64_t *x)
     return 0;
 }
 
+static int parseArgVec32(struct slice *b, struct parseState *st, u_int64_t *x)
+{
+    u_int64_t elem;
+    u_int32_t *vec;
+    int i;
+    u_int8_t sz;
+
+    if(getU8(b, &sz) == -1)
+        return -1;
+    vec = malloc(sz * sizeof vec[0]); /* note: we ignore memory leaks - exit/doneWork are perfect GCs */
+    if(sz && !vec)
+        return -1;
+    if(verbose) printf("argVec32 %llx - size %d\n", (unsigned long long)(u_long)vec, sz);
+    for(i = 0; i < sz; i++) {
+        if(verbose) printf("vec %d: ", i);
+        if(parseArg(b, st, &elem) == -1)
+            return -1;
+        vec[i] = elem;
+    }
+    if(pushSize(st, sz) == -1)
+        return -1;
+    *x = (u_int64_t)(u_long)vec;
+    return 0;
+}
+
 static int parseArg(struct slice *b, struct parseState *st, u_int64_t *x)
 {
     unsigned char typ;
@@ -278,6 +303,7 @@ static int parseArg(struct slice *b, struct parseState *st, u_int64_t *x)
     case 8: return parseArgFilename(b, st, x);
     case 9: return parseArgPid(b, st, x);
     case 10: return parseArgRef(b, st, x);
+    case 11: return parseArgVec32(b, st, x);
     default: return -1;
     }
 }

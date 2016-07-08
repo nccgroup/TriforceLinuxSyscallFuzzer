@@ -2,7 +2,7 @@
 """
 Generate syscall input files in the driver's file format.
 """
-import struct, sys
+import struct, sys, subprocess
 
 BUFDELIM = "\xa5\xc9"
 CALLDELIM = "\xb7\xe3"
@@ -83,6 +83,14 @@ class Ref(object) :
         self.nc, self.na = nc,na
     def mkArg(self, buf, xtra) :
         buf.pack('!BBB', 10, self.nc, self.na)
+class Vec32(object) :
+    def __init__(self, *vs) :
+        assert len(vs) < 256
+        self.v = vs
+    def mkArg(self, buf, xtra) :
+        buf.pack('!BB', 11, len(self.v))
+        for x in self.v :
+            mkArg(buf, xtra, x)
 
 def mkArg(buf, xtra, x) :
     if isinstance(x, str) :
