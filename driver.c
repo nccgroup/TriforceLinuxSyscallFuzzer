@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/signal.h>
 
 #include "drv.h"
 #include "sysc.h"
@@ -83,9 +84,12 @@ main(int argc, char **argv)
     unsigned short filtCalls[MAXFILTCALLS];
     char *prog, *buf;
     u_long sz;
-    int x, opt, nrecs, nFiltCalls;
+    long x;
+    int opt, nrecs, nFiltCalls, parseOk;
     int noSyscall = 0;
     int enableTimer = 0;
+
+    signal(SIGCHLD, SIG_IGN);
 
     nFiltCalls = 0;
     prog = argv[0];
@@ -135,10 +139,10 @@ main(int argc, char **argv)
     extern void _start(), __libc_start_main();
     startWork((u_long)_start, (u_long)__libc_start_main);
     mkSlice(&slice, buf, sz);
-    x = parseSysRecArr(&slice, 3, recs, &nrecs);
+    parseOk = parseSysRecArr(&slice, 3, recs, &nrecs);
     if(verbose) {
-        printf("read %ld bytes, parse result %d nrecs %d\n", sz, x, (int)nrecs);
-        if(x == 0)
+        printf("read %ld bytes, parse result %d nrecs %d\n", sz, parseOk, (int)nrecs);
+        if(parseOk == 0)
             showSysRecArr(recs, nrecs);
     }
 
@@ -147,13 +151,13 @@ main(int argc, char **argv)
         startWork(0xffffffff81000000L, 0xffffffffffffffffL);
         if(noSyscall) {
             x = 0;
-        } else if(x == 0) {
+        } else if(parseOk == 0) {
             /* note: if this crashes, watcher will do doneWork for us */
             x = doSysRecArr(recs, nrecs);
         } else {
-            x = getpid(); // dummy system call
+            x = -1;
         }
-        if (verbose) printf("syscall returned %d\n", x);
+        if (verbose) printf("syscall returned %ld\n", x);
     } else {
         if (verbose) printf("Rejected by filter\n");
     }
