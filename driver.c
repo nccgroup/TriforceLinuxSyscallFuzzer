@@ -89,8 +89,6 @@ main(int argc, char **argv)
     int noSyscall = 0;
     int enableTimer = 0;
 
-    signal(SIGCHLD, SIG_IGN);
-
     nFiltCalls = 0;
     prog = argv[0];
     while((opt = getopt(argc, argv, "f:tTvx")) != -1) {
