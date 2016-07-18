@@ -48,11 +48,22 @@ The file is opened and the file descriptor becomes the argument.
 can represent sockets, special files, events, epolls, inotifys and
 other unusual file types.  A file of that type is opened and
 the file descriptor becomes the argument.
-* Type 6 starts with an 8-bit number specifying a count.
+* Type 7 starts with an 8-bit number specifying a count.
 An argument vector of this size is created by recursively parsing
 that many more arguments and storing them in the vector.
 The vector pointer becomes the argument.
-* Type 7 has no further information. It conumes the next call buffer
+* Type 8 has no further information. It conumes the next call buffer
 and writes it to a temporary file. The filename becomes the argument
 and the file size is pushed onto the size stack.
-
+* Type 9 has an 8-bit number. When zero, the argument is the
+current process ID.  When one the argument is the parent's process ID.
+When two, a new child process is forked (which does nothing), and
+the argument is the child's process ID.
+* Type 10 contains two 8-bit numbers. The first references one of
+the earlier system call records, and the second references an argument
+number.  The argument becomes a copy of the argument from the previous
+call.
+* Type 11 starts with an 8-bit number specifying a count.
+A 32-bit argument vector of this size is created by recursively parsing
+that many more arguments and storing them in the vector.
+The vector pointer becomes the argument.
