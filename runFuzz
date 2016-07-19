@@ -43,7 +43,7 @@ $AFL/afl-fuzz $FARGS -t 500+ -i $INP -o outputs -QQ -- \
     $AFL/afl-qemu-system-trace \
     -L $AFL/qemu_mode/qemu/pc-bios \
     -kernel $KERN/bzImage -initrd ./fuzzRoot.cpio.gz \
-    -m 1G -nographic -append "console=ttyS0" \
+    -m 64M -nographic -append "console=ttyS0" \
     -aflPanicAddr "$PANIC" \
     -aflDmesgAddr "$LOGSTORE" \
     -aflFile @@

@@ -17,7 +17,7 @@ make testAfl testRoot.cpio.gz || exit 1
 ./testAfl $AFL/afl-qemu-system-trace \
     -L $AFL/qemu_mode/qemu/pc-bios \
     -kernel $KERN/bzImage -initrd ./testRoot.cpio.gz \
-    -m 2G -nographic -append "console=ttyS0" \
+    -m 64M -nographic -append "console=ttyS0" \
     -aflPanicAddr "$CRASH" \
     -aflDmesgAddr "$LOGSTORE" \
     -aflFile @@ -- "$@"
