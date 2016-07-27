@@ -155,6 +155,7 @@ int main(int argc, char **argv)
     files = argv + i;
 
     /* run program to start forkserver */
+    fflush(stdout);
     gettimeofday(&startBoot, 0);
     pid = fork();
     if(pid == 0) {
