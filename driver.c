@@ -159,6 +159,7 @@ main(int argc, char **argv)
     } else {
         if (verbose) printf("Rejected by filter\n");
     }
+    fflush(stdout);
     doneWork(0);
     return 0;
 }

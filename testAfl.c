@@ -155,7 +155,6 @@ int main(int argc, char **argv)
     files = argv + i;
 
     /* run program to start forkserver */
-    fflush(stdout);
     gettimeofday(&startBoot, 0);
     pid = fork();
     if(pid == 0) {
@@ -172,6 +171,7 @@ int main(int argc, char **argv)
     for(i = 0; files[i] && !forceQuit; i++) {
         gettimeofday(&now, NULL);
         printf("Input from %s at time %ld.%06ld\n", files[i], (u_long)now.tv_sec, (u_long)now.tv_usec);
+        fflush(stdout);
         runTest(files[i], 0);
     }
     if(i == 0)
