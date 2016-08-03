@@ -144,16 +144,14 @@ main(int argc, char **argv)
             showSysRecArr(recs, nrecs);
     }
 
-    if(filterCalls(filtCalls, nFiltCalls, recs, nrecs)) {
+    if(parseOk == 0 && filterCalls(filtCalls, nFiltCalls, recs, nrecs)) {
         /* trace kernel code while performing syscalls */
         startWork(0xffffffff81000000L, 0xffffffffffffffffL);
         if(noSyscall) {
             x = 0;
-        } else if(parseOk == 0) {
+        } else {
             /* note: if this crashes, watcher will do doneWork for us */
             x = doSysRecArr(recs, nrecs);
-        } else {
-            x = -1;
         }
         if (verbose) printf("syscall returned %ld\n", x);
     } else {
