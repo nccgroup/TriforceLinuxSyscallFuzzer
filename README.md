@@ -1,7 +1,7 @@
 # TriforceLinuxSyscallFuzzer
 * 20160613
 * https://github.com/nccgroup/TriforceLinuxSyscallFuzzer
-* Jess Hertz <jesse.hertz@nccgroup.trust>
+* Jesse Hertz <jesse.hertz@nccgroup.trust>
 * Tim Newsham <tim.newsham@nccgroup.trust>
 
 This is a collection of files used to perform system call
