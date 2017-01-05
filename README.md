@@ -4,6 +4,9 @@
 * Jesse Hertz <jesse.hertz@nccgroup.trust>
 * Tim Newsham <tim.newsham@nccgroup.trust>
 
+New: For those looking to play with TriforceAFL and TLSF, Richard Johnson created a Dockerfile which installs both (and even builds a Linux kernel for you). It's available here <https://hub.docker.com/r/moflow/afl-triforce/tags/>.
+
+
 This is a collection of files used to perform system call
 fuzzing of Linux x86_64 kernels using AFL and QEMU.  To use 
 it you will need TriforceAFL from https://github.com/nccgroup/TriforceAFL
